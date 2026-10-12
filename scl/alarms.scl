@@ -1,0 +1,61 @@
+FUNCTION_BLOCK "alarms"
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      PH : Real;
+      "level source" : Real;
+      "level treatment" : Real;
+      "emergency btn" : Bool;
+   END_VAR
+
+   VAR_OUTPUT 
+      alarm_ph_high : Bool;
+      alarm_ph_low : Bool;
+      "alarm source" : Bool;
+      "alarm treat" : Bool;
+      emergency : Bool;
+      any_alarm : Bool;
+   END_VAR
+
+
+BEGIN
+	//PH
+	IF #PH > 7.8 THEN
+	    #alarm_ph_high := TRUE;
+	ELSE
+	    #alarm_ph_high := FALSE;
+	END_IF;
+	IF #PH <6.2 THEN
+	    #alarm_ph_low := TRUE;
+	ELSE
+	    #alarm_ph_low := FALSE;
+	END_IF;
+	//LEVEL
+	IF #"level source" < 15.0 THEN
+	    #"alarm source" := TRUE;
+	ELSE
+	    #"alarm source" := FALSE;
+	END_IF;
+	
+	IF #"level treatment">90.0 THEN
+	    #"alarm treat" := TRUE;
+	ELSE
+	    #"alarm treat" := FALSE;
+	END_IF;
+	//emergency
+	IF #"emergency btn" THEN
+	    #emergency := TRUE;
+	ELSE
+	    #emergency := FALSE;
+	END_IF;
+	// any
+	#any_alarm := #alarm_ph_high
+	OR #alarm_ph_low
+	OR #"alarm source"
+	OR #"alarm treat"
+	OR #emergency;
+	
+	
+	
+END_FUNCTION_BLOCK
+
