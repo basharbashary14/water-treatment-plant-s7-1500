@@ -1,0 +1,57 @@
+FUNCTION_BLOCK "sequence"
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      start : Bool;
+      stop : Bool;
+      "level source" : Real;
+      "level treatment" : Real;
+      PH : Real;
+   END_VAR
+
+   VAR_OUTPUT 
+      p101_cmd : Bool;
+      p201_cmd : Bool;
+      xv101_cmd : Bool;
+      "pid enable" : Bool;
+      step : Int;
+   END_VAR
+
+   VAR RETAIN
+      step_int : Int;
+   END_VAR
+
+
+BEGIN
+	CASE #step_int OF
+	    0:  // idle
+	        IF #start AND #"level source" > 20.0 THEN
+	            #step_int := 1;
+	        END_IF;
+	        
+	    1://intake 
+	        IF #"level treatment" > 30.0 THEN
+	            #step_int := 2;
+	        END_IF;
+	    2://treatment
+	        IF #PH > 6.5 AND #PH < 7.5 
+	            AND #"level treatment" > 60.0 THEN
+	            
+	            #step_int := 3;
+	        END_IF;
+	    3://distribution
+	        IF #"level treatment" < 20.0 OR #stop THEN
+	        #step_int:= 0;
+	            
+	        END_IF;
+	        
+	  
+	END_CASE;
+	#xv101_cmd := #step_int >= 1;
+	#p101_cmd := #step_int >= 1;
+	#p201_cmd := #step_int = 3;
+	#"pid enable" := #step_int >= 2;
+	#step := #step_int;
+	
+END_FUNCTION_BLOCK
+
