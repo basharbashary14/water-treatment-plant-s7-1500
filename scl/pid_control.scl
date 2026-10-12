@@ -1,0 +1,62 @@
+FUNCTION_BLOCK "PID"
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+   VAR_INPUT 
+      "set point" : Real;
+      sensor : Real;
+      kp : Real;
+      ki : Real;
+      kd : Real;
+      "sample time" : Real;
+      enable : Bool;
+   END_VAR
+
+   VAR_OUTPUT 
+      error : Real;
+      output : Real;
+   END_VAR
+
+   VAR RETAIN
+      integral { ExternalAccessible := 'False'; ExternalVisible := 'False'; ExternalWritable := 'False'} : Real;
+      "error prev" { ExternalAccessible := 'False'; ExternalVisible := 'False'; ExternalWritable := 'False'} : Real;
+   END_VAR
+   VAR 
+      p : Real;
+      d : Real;
+   END_VAR
+
+
+BEGIN
+	IF #enable=0 THEN
+	    #output:=0.0;
+	    #integral := 0.0;
+	    #"error prev":=0.0;
+	END_IF;
+	
+	#error := #"set point" - #sensor;
+	#p := #kp * #error;
+	IF #ki>0 THEN
+	    
+	    #integral:=#integral + (#error * #"sample time"/#ki)*#kp;
+	END_IF;
+	// windup setup
+	IF #integral > 100.0 THEN
+	    
+	    #integral := 100.0;
+	ELSIF #integral < 0.0 THEN
+	        #integral := 0.0;
+	END_IF;
+	IF #kd>0.0 THEN
+	 
+	    #d:=#kp*#kd *(#error-#"error prev"/#"sample time");
+	END_IF;
+	#output := #p + #integral + #d;
+	IF #output > 100.0 THEN
+	  
+	    #output := 100.0;
+	ELSIF #output < 0.0 THEN
+	        #output := 0.0;
+	    END_IF;
+	    #"error prev" := #error;
+END_FUNCTION_BLOCK
+
