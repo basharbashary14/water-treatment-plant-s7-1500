@@ -1,4 +1,4 @@
-# Water Treatment Plant Automation (Siemens S7-1500)
+# Water Treatment Plant Automation (Siemens S7-1200)
 
 Full automation of a water treatment plant built from scratch in
 TIA Portal using SCL, with a KTP700 HMI.
@@ -10,7 +10,7 @@ TIA Portal using SCL, with a KTP700 HMI.
 - Structured alarm system on the HMI
 
 ## Tools
-Siemens TIA Portal · S7-1500 · SCL · PID Control · KTP700 HMI
+Siemens TIA Portal · S7-1200 · SCL · PID Control · KTP700 HMI
 
 ## Repository structure
 - `scl/`: SCL source files
